@@ -1,19 +1,21 @@
 using AcademicEnrollment.Components;
-using AcademicEnrollment.Services;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using UniversityRegistration.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("Default")
+                       ?? throw new InvalidOperationException("Connection string 'Default' not found.");
+
+builder.Services.AddDbContext<UniversityRegistrationContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddHostedService<TailwindDevServerHostedService>();
-}
 
 var app = builder.Build();
 
