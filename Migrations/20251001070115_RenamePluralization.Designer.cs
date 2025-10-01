@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniversityRegistration.Data;
 
@@ -11,9 +12,11 @@ using UniversityRegistration.Data;
 namespace AcademicEnrollment.Migrations
 {
     [DbContext(typeof(UniversityRegistrationContext))]
-    partial class UniversityRegistrationContextModelSnapshot : ModelSnapshot
+    [Migration("20251001070115_RenamePluralization")]
+    partial class RenamePluralization
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,16 +223,11 @@ namespace AcademicEnrollment.Migrations
                         .HasColumnType("int")
                         .HasColumnName("required_credits");
 
-                    b.Property<int>("Semester")
-                        .HasColumnType("int")
-                        .HasColumnName("semester");
-
                     b.HasKey("Id")
                         .HasName("pk_elective_groups");
 
-                    b.HasIndex("CurriculumId", "Semester", "Name")
-                        .IsUnique()
-                        .HasDatabaseName("ix_elective_groups_curriculum_id_semester_name");
+                    b.HasIndex("CurriculumId")
+                        .HasDatabaseName("ix_elective_groups_curriculum_id");
 
                     b.ToTable("elective_groups");
                 });
@@ -240,11 +238,6 @@ namespace AcademicEnrollment.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("id");
-
-                    b.Property<string>("AttributedElectiveGroupId")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("attributed_elective_group_id");
 
                     b.Property<string>("CourseClassId")
                         .IsRequired()
@@ -269,9 +262,6 @@ namespace AcademicEnrollment.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_enrollments");
-
-                    b.HasIndex("AttributedElectiveGroupId")
-                        .HasDatabaseName("ix_enrollments_attributed_elective_group_id");
 
                     b.HasIndex("CourseClassId")
                         .HasDatabaseName("ix_enrollments_course_class_id");
@@ -610,6 +600,10 @@ namespace AcademicEnrollment.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("curriculum_id");
 
+                    b.Property<string>("ElectiveGroupId")
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("elective_group_id");
+
                     b.Property<int>("Semester")
                         .HasColumnType("int")
                         .HasColumnName("semester");
@@ -626,34 +620,13 @@ namespace AcademicEnrollment.Migrations
                     b.HasIndex("CurriculumId")
                         .HasDatabaseName("ix_subject_curriculums_curriculum_id");
 
+                    b.HasIndex("ElectiveGroupId")
+                        .HasDatabaseName("ix_subject_curriculums_elective_group_id");
+
                     b.HasIndex("SubjectId")
                         .HasDatabaseName("ix_subject_curriculums_subject_id");
 
                     b.ToTable("subject_curriculums", (string)null);
-                });
-
-            modelBuilder.Entity("UniversityRegistration.Models.SubjectCurriculumElectiveGroup", b =>
-                {
-                    b.Property<string>("SubjectCurriculumId")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("subject_curriculum_id");
-
-                    b.Property<string>("ElectiveGroupId")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("elective_group_id");
-
-                    b.HasKey("SubjectCurriculumId", "ElectiveGroupId")
-                        .HasName("pk_subject_curriculum_elective_groups");
-
-                    b.HasIndex("ElectiveGroupId")
-                        .HasDatabaseName("ix_subject_curriculum_elective_groups_elective_group_id");
-
-                    b.ToTable("subject_curriculum_elective_groups", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_sc_eg_same_ids", "subject_curriculum_id <> '' AND elective_group_id <> ''");
-                        });
                 });
 
             modelBuilder.Entity("UniversityRegistration.Models.SubjectLecturer", b =>
@@ -784,12 +757,6 @@ namespace AcademicEnrollment.Migrations
 
             modelBuilder.Entity("UniversityRegistration.Models.Enrollment", b =>
                 {
-                    b.HasOne("UniversityRegistration.Models.ElectiveGroup", "AttributedElectiveGroup")
-                        .WithMany()
-                        .HasForeignKey("AttributedElectiveGroupId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_enrollments_elective_groups_attributed_elective_group_id");
-
                     b.HasOne("UniversityRegistration.Models.CourseClass", "CourseClass")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseClassId")
@@ -809,8 +776,6 @@ namespace AcademicEnrollment.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_enrollments__students_student_id");
-
-                    b.Navigation("AttributedElectiveGroup");
 
                     b.Navigation("CourseClass");
 
@@ -934,6 +899,12 @@ namespace AcademicEnrollment.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_subject_curriculums_curriculums_curriculum_id");
 
+                    b.HasOne("UniversityRegistration.Models.ElectiveGroup", "ElectiveGroup")
+                        .WithMany("Subjects")
+                        .HasForeignKey("ElectiveGroupId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_subject_curriculums_elective_groups_elective_group_id");
+
                     b.HasOne("UniversityRegistration.Models.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
@@ -943,28 +914,9 @@ namespace AcademicEnrollment.Migrations
 
                     b.Navigation("Curriculum");
 
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("UniversityRegistration.Models.SubjectCurriculumElectiveGroup", b =>
-                {
-                    b.HasOne("UniversityRegistration.Models.ElectiveGroup", "ElectiveGroup")
-                        .WithMany("SubjectCurricula")
-                        .HasForeignKey("ElectiveGroupId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("fk_subject_curriculum_elective_groups_elective_groups_elective_group_id");
-
-                    b.HasOne("UniversityRegistration.Models.SubjectCurriculum", "SubjectCurriculum")
-                        .WithMany("ElectiveGroups")
-                        .HasForeignKey("SubjectCurriculumId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("fk_subject_curriculum_elective_groups_subject_curriculums_subject_curriculum_id");
-
                     b.Navigation("ElectiveGroup");
 
-                    b.Navigation("SubjectCurriculum");
+                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("UniversityRegistration.Models.SubjectLecturer", b =>
@@ -1020,7 +972,7 @@ namespace AcademicEnrollment.Migrations
 
             modelBuilder.Entity("UniversityRegistration.Models.ElectiveGroup", b =>
                 {
-                    b.Navigation("SubjectCurricula");
+                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("UniversityRegistration.Models.Lecturer", b =>
@@ -1064,11 +1016,6 @@ namespace AcademicEnrollment.Migrations
                     b.Navigation("CourseClasses");
 
                     b.Navigation("SubjectLecturers");
-                });
-
-            modelBuilder.Entity("UniversityRegistration.Models.SubjectCurriculum", b =>
-                {
-                    b.Navigation("ElectiveGroups");
                 });
 #pragma warning restore 612, 618
         }

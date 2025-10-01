@@ -13,159 +13,254 @@ public class UniversityRegistrationContext : DbContext
     {
     }
 
-    public DbSet<Khoa> DanhSachKhoa => Set<Khoa>();
+    public DbSet<Department> Departments => Set<Department>();
 
-    public DbSet<KhoaDaoTao> DanhSachKhoaDaoTao => Set<KhoaDaoTao>();
+    public DbSet<ProgramCohort> ProgramCohorts => Set<ProgramCohort>();
 
-    public DbSet<ChuongTrinhHoc> DanhSachChuongTrinhHoc => Set<ChuongTrinhHoc>();
+    public DbSet<Curriculum> Curriculums => Set<Curriculum>();
 
-    public DbSet<LopDanhNghia> DanhSachLopDanhNghia => Set<LopDanhNghia>();
+    public DbSet<SubjectCurriculum> SubjectCurriculums => Set<SubjectCurriculum>();
 
-    public DbSet<SinhVien> DanhSachSinhVien => Set<SinhVien>();
+    public DbSet<ElectiveGroup> ElectiveGroups => Set<ElectiveGroup>();
 
-    public DbSet<GiangVien> DanhSachGiangVien => Set<GiangVien>();
+    public DbSet<Class> Classes => Set<Class>();
 
-    public DbSet<MonHoc> DanhSachMonHoc => Set<MonHoc>();
+    public DbSet<Student> Students => Set<Student>();
 
-    public DbSet<MonHocGiangVien> DanhSachMonHocGiangVien => Set<MonHocGiangVien>();
+    public DbSet<Lecturer> Lecturers => Set<Lecturer>();
 
-    public DbSet<HocKy> DanhSachHocKy => Set<HocKy>();
+    public DbSet<Subject> Subjects => Set<Subject>();
 
-    public DbSet<LopHocPhan> DanhSachLopHocPhan => Set<LopHocPhan>();
+    public DbSet<SubjectLecturer> SubjectLecturers => Set<SubjectLecturer>();
 
-    public DbSet<NhomThucHanh> DanhSachNhomThucHanh => Set<NhomThucHanh>();
+    public DbSet<Semester> Semesters => Set<Semester>();
 
-    public DbSet<PhongHoc> DanhSachPhongHoc => Set<PhongHoc>();
+    public DbSet<CourseClass> CourseClasses => Set<CourseClass>();
 
-    public DbSet<LichHocPhan> DanhSachLichHocPhan => Set<LichHocPhan>();
+    public DbSet<PracticeGroup> PracticeGroups => Set<PracticeGroup>();
 
-    public DbSet<DangKyHocPhan> DanhSachDangKyHocPhan => Set<DangKyHocPhan>();
+    public DbSet<Room> Rooms => Set<Room>();
+
+    public DbSet<Schedule> Schedules => Set<Schedule>();
+
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
+    public DbSet<SubjectCurriculumElectiveGroup> SubjectCurriculumElectiveGroups => Set<SubjectCurriculumElectiveGroup>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<MonHocGiangVien>()
-            .HasKey(mg => new { mg.MonHocId, mg.GiangVienId });
+        modelBuilder.Entity<SubjectLecturer>()
+            .HasKey(sl => new { sl.SubjectId, sl.LecturerId });
 
-        modelBuilder.Entity<Khoa>()
-            .HasMany(k => k.DanhSachKhoaDaoTao)
-            .WithOne(kdt => kdt.Khoa)
-            .HasForeignKey(kdt => kdt.KhoaId)
+        modelBuilder.Entity<Department>()
+            .HasMany(d => d.ProgramCohorts)
+            .WithOne(pc => pc.Department)
+            .HasForeignKey(pc => pc.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Khoa>()
-            .HasMany(k => k.DanhSachGiangVien)
-            .WithOne(gv => gv.Khoa)
-            .HasForeignKey(gv => gv.KhoaId)
+        modelBuilder.Entity<Department>()
+            .HasMany(d => d.Lecturers)
+            .WithOne(l => l.Department)
+            .HasForeignKey(l => l.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Khoa>()
-            .HasMany(k => k.DanhSachMonHoc)
-            .WithOne(mh => mh.Khoa)
-            .HasForeignKey(mh => mh.KhoaId)
+        modelBuilder.Entity<Department>()
+            .HasMany(d => d.Subjects)
+            .WithOne(s => s.Department)
+            .HasForeignKey(s => s.DepartmentId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<KhoaDaoTao>()
-            .HasMany(kdt => kdt.DanhSachLopDanhNghia)
-            .WithOne(ldn => ldn.KhoaDaoTao)
-            .HasForeignKey(ldn => ldn.KhoaDaoTaoId)
+        modelBuilder.Entity<ProgramCohort>()
+            .HasMany(pc => pc.Classes)
+            .WithOne(c => c.ProgramCohort)
+            .HasForeignKey(c => c.ProgramCohortId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<ChuongTrinhHoc>()
-            .HasMany(cth => cth.DanhSachMonHoc)
-            .WithOne(mh => mh.ChuongTrinhHoc)
-            .HasForeignKey(mh => mh.ChuongTrinhHocId)
+        modelBuilder.Entity<ProgramCohort>()
+            .HasOne(pc => pc.Curriculum)
+            .WithMany()
+            .HasForeignKey(pc => pc.CurriculumId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Curriculum>()
+            .HasMany(c => c.SubjectCurriculums)
+            .WithOne(sc => sc.Curriculum)
+            .HasForeignKey(sc => sc.CurriculumId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Curriculum>()
+            .HasMany(c => c.ElectiveGroups)
+            .WithOne(eg => eg.Curriculum)
+            .HasForeignKey(eg => eg.CurriculumId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SubjectCurriculum>()
+            .HasOne(sc => sc.Subject)
+            .WithMany()
+            .HasForeignKey(sc => sc.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Gỡ mapping 1-n cũ (đã bỏ ElectiveGroupId trong SubjectCurriculum)
+
+        // 1) ElectiveGroup: unique trong 1 curriculum & 1 học kỳ
+        modelBuilder.Entity<ElectiveGroup>()
+            .HasIndex(x => new { x.CurriculumId, x.Semester, x.Name })
+            .IsUnique();
+
+        modelBuilder.Entity<ElectiveGroup>()
+            .HasOne(x => x.Curriculum)
+            .WithMany(c => c.ElectiveGroups)
+            .HasForeignKey(x => x.CurriculumId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // 3) Mapping m-n qua bảng nối
+        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
+            .ToTable("subject_curriculum_elective_groups")
+            .HasKey(x => new { x.SubjectCurriculumId, x.ElectiveGroupId });
+
+        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
+            .HasOne(x => x.SubjectCurriculum)
+            .WithMany(sc => sc.ElectiveGroups)
+            .HasForeignKey(x => x.SubjectCurriculumId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
+            .HasOne(x => x.ElectiveGroup)
+            .WithMany(eg => eg.SubjectCurricula)
+            .HasForeignKey(x => x.ElectiveGroupId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // 4) (Optional) Ràng buộc cùng học kỳ & cùng curriculum ở mức DB
+        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
+            .ToTable(tb => tb.HasCheckConstraint(
+                "ck_sc_eg_same_ids",
+                // check mềm: chỉ kiểm non-empty; phần "cùng semester/curriculum" validate trong code
+                "subject_curriculum_id <> '' AND elective_group_id <> ''"
+            ));
+
+        // 5) Quy đổi nhóm ở Enrollment
+        modelBuilder.Entity<Enrollment>()
+            .HasOne(e => e.AttributedElectiveGroup)
+            .WithMany()
+            .HasForeignKey(e => e.AttributedElectiveGroupId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        modelBuilder.Entity<LopDanhNghia>()
-            .HasMany(ldn => ldn.DanhSachSinhVien)
-            .WithOne(sv => sv.LopDanhNghia)
-            .HasForeignKey(sv => sv.LopDanhNghiaId)
+        // Configure prerequisite/corequisite relationships
+        modelBuilder.Entity<SubjectCurriculum>()
+            .HasMany(sc => sc.Prerequisites)
+            .WithMany()
+            .UsingEntity(j => j.ToTable("prerequisites"));
+
+        modelBuilder.Entity<SubjectCurriculum>()
+            .HasMany(sc => sc.Corequisites)
+            .WithMany()
+            .UsingEntity(j => j.ToTable("corequisites"));
+
+        modelBuilder.Entity<SubjectCurriculum>()
+            .HasMany(sc => sc.ConcurrentCourses)
+            .WithMany()
+            .UsingEntity(j => j.ToTable("concurrent_courses"));
+
+
+        modelBuilder.Entity<Class>()
+            .HasMany(c => c.Students)
+            .WithOne(s => s.Class)
+            .HasForeignKey(s => s.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<MonHoc>()
-            .HasMany(mh => mh.DanhSachLopHocPhan)
-            .WithOne(lhp => lhp.MonHoc)
-            .HasForeignKey(lhp => lhp.MonHocId)
+        modelBuilder.Entity<Subject>()
+            .HasMany(s => s.CourseClasses)
+            .WithOne(cc => cc.Subject)
+            .HasForeignKey(cc => cc.SubjectId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<HocKy>()
-            .HasMany(hk => hk.DanhSachLopHocPhan)
-            .WithOne(lhp => lhp.HocKy)
-            .HasForeignKey(lhp => lhp.HocKyId)
+        modelBuilder.Entity<Semester>()
+            .HasMany(s => s.CourseClasses)
+            .WithOne(cc => cc.Semester)
+            .HasForeignKey(cc => cc.SemesterId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<GiangVien>()
-            .HasMany(gv => gv.DanhSachLopHocPhanLT)
-            .WithOne(lhp => lhp.GiangVienLT)
-            .HasForeignKey(lhp => lhp.GiangVienLTId)
+        modelBuilder.Entity<Lecturer>()
+            .HasMany(l => l.CourseClasses)
+            .WithOne(cc => cc.Lecturer)
+            .HasForeignKey(cc => cc.LecturerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<GiangVien>()
-            .HasMany(gv => gv.DanhSachNhomThucHanhTH)
-            .WithOne(nth => nth.GiangVienTH)
-            .HasForeignKey(nth => nth.GiangVienTHId)
+        modelBuilder.Entity<Lecturer>()
+            .HasMany(l => l.PracticeGroups)
+            .WithOne(pg => pg.Lecturer)
+            .HasForeignKey(pg => pg.LecturerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<MonHocGiangVien>()
-            .HasOne(mg => mg.MonHoc)
-            .WithMany(mh => mh.DanhSachMonHocGiangVien)
-            .HasForeignKey(mg => mg.MonHocId)
+        modelBuilder.Entity<SubjectLecturer>()
+            .HasOne(sl => sl.Subject)
+            .WithMany(s => s.SubjectLecturers)
+            .HasForeignKey(sl => sl.SubjectId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<MonHocGiangVien>()
-            .HasOne(mg => mg.GiangVien)
-            .WithMany(gv => gv.DanhSachMonHocGiangVien)
-            .HasForeignKey(mg => mg.GiangVienId)
+        modelBuilder.Entity<SubjectLecturer>()
+            .HasOne(sl => sl.Lecturer)
+            .WithMany(l => l.SubjectLecturers)
+            .HasForeignKey(sl => sl.LecturerId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<LopHocPhan>()
-            .HasMany(lhp => lhp.DanhSachNhomThucHanh)
-            .WithOne(nth => nth.LopHocPhan)
-            .HasForeignKey(nth => nth.LopHocPhanId)
+        modelBuilder.Entity<CourseClass>()
+            .HasMany(cc => cc.PracticeGroups)
+            .WithOne(pg => pg.CourseClass)
+            .HasForeignKey(pg => pg.CourseClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<LopHocPhan>()
-            .HasMany(lhp => lhp.DanhSachLichHocPhan)
-            .WithOne(lhpDetail => lhpDetail.LopHocPhan)
-            .HasForeignKey(lhpDetail => lhpDetail.LopHocPhanId)
+        modelBuilder.Entity<CourseClass>()
+            .HasMany(cc => cc.Schedules)
+            .WithOne(s => s.CourseClass)
+            .HasForeignKey(s => s.CourseClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<LopHocPhan>()
-            .HasMany(lhp => lhp.DanhSachDangKyHocPhan)
-            .WithOne(dkhp => dkhp.LopHocPhan)
-            .HasForeignKey(dkhp => dkhp.LopHocPhanId)
+        modelBuilder.Entity<CourseClass>()
+            .HasMany(cc => cc.Enrollments)
+            .WithOne(e => e.CourseClass)
+            .HasForeignKey(e => e.CourseClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<NhomThucHanh>()
-            .HasMany(nth => nth.DanhSachLichHocPhan)
-            .WithOne(lhpDetail => lhpDetail.NhomThucHanh)
-            .HasForeignKey(lhpDetail => lhpDetail.NhomThucHanhId)
+        modelBuilder.Entity<PracticeGroup>()
+            .HasMany(pg => pg.Schedules)
+            .WithOne(s => s.PracticeGroup)
+            .HasForeignKey(s => s.PracticeGroupId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<NhomThucHanh>()
-            .HasMany(nth => nth.DanhSachDangKyHocPhan)
-            .WithOne(dkhp => dkhp.NhomThucHanh)
-            .HasForeignKey(dkhp => dkhp.NhomThucHanhId)
+        modelBuilder.Entity<PracticeGroup>()
+            .HasMany(pg => pg.Enrollments)
+            .WithOne(e => e.PracticeGroup)
+            .HasForeignKey(e => e.PracticeGroupId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<SinhVien>()
-            .HasMany(sv => sv.DanhSachDangKyHocPhan)
-            .WithOne(dkhp => dkhp.SinhVien)
-            .HasForeignKey(dkhp => dkhp.SinhVienId)
+        modelBuilder.Entity<Student>()
+            .HasMany(s => s.Enrollments)
+            .WithOne(e => e.Student)
+            .HasForeignKey(e => e.StudentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<PhongHoc>()
-            .HasMany(ph => ph.DanhSachLichHocPhan)
-            .WithOne(lhp => lhp.PhongHoc)
-            .HasForeignKey(lhp => lhp.PhongHocId)
+        modelBuilder.Entity<Room>()
+            .HasMany(r => r.Schedules)
+            .WithOne(s => s.Room)
+            .HasForeignKey(s => s.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<PhongHoc>()
-            .Property(ph => ph.LoaiPhong)
+        modelBuilder.Entity<Room>()
+            .Property(r => r.RoomType)
             .HasConversion<string>()
             .HasMaxLength(20);
+
+        modelBuilder.Entity<Schedule>()
+            .Property(s => s.DayOfWeek)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        // Explicit table names using simple s/es pluralization
+        modelBuilder.Entity<Curriculum>().ToTable("curriculums");
+        modelBuilder.Entity<SubjectCurriculum>().ToTable("subject_curriculums");
 
         ApplySnakeCaseNaming(modelBuilder);
     }
@@ -215,23 +310,9 @@ public class UniversityRegistrationContext : DbContext
         }
     }
 
-    private const string DanhSachPrefix = "DanhSach";
-
     private static string NormalizeTableName(string tableName)
     {
-        var trimmedName = tableName;
-
-        if (trimmedName.StartsWith(DanhSachPrefix, StringComparison.Ordinal))
-        {
-            trimmedName = trimmedName[DanhSachPrefix.Length..];
-        }
-
-        if (trimmedName.EndsWith("s", StringComparison.Ordinal) && trimmedName.Length > 1)
-        {
-            trimmedName = trimmedName[..^1];
-        }
-
-        return ToSnakeCase(trimmedName);
+        return ToSnakeCase(tableName);
     }
 
     private static string ToSnakeCase(string value)

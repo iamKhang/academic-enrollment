@@ -2,6 +2,7 @@ using AcademicEnrollment.Components;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using UniversityRegistration.Data;
+using UniversityRegistration.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,13 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices();
 
 var app = builder.Build();
+
+// Seed database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<UniversityRegistrationContext>();
+    await SeedData.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
