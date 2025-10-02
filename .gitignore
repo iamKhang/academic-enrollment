@@ -5,3 +5,5 @@ node_modules/
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
+wwwroot/lib/
+.DS_Store
