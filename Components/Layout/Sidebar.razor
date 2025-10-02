@@ -1,0 +1,130 @@
+@using MudBlazor
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Routing
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager Navigation
+
+<MudDrawer @bind-Open="isOpen" Variant="DrawerVariant.Persistent" Elevation="2" Class="sidebar-drawer bg-blue-600 text-white min-h-screen w-80 min-w-80 max-w-80">
+    <MudStack Spacing="2" Class="p-4">
+        <!-- Header -->
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+            <MudIcon Icon="@Icons.Material.Filled.School" Size="Size.Large" />
+            <MudText Typo="Typo.h6">Hệ thống</MudText>
+        </MudStack>
+
+        <!-- Navigation Items -->
+        <MudNavMenu Class="text-white">
+            <!-- Dashboard -->
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" Class="text-white hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                Trang chủ
+            </MudNavLink>
+
+            <!-- Quản lý Sinh viên -->
+            <MudNavGroup Text="Quản lý Sinh viên" Icon="@Icons.Material.Filled.People" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/students" Icon="@Icons.Material.Filled.List" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Danh sách Sinh viên
+                </MudNavLink>
+                <MudNavLink Href="/students/add" Icon="@Icons.Material.Filled.PersonAdd" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Thêm Sinh viên
+                </MudNavLink>
+                <MudNavLink Href="/students/import" Icon="@Icons.Material.Filled.Upload" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Import Excel
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Quản lý Giảng viên -->
+            <MudNavGroup Text="Quản lý Giảng viên" Icon="@Icons.Material.Filled.Group" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/lecturers" Icon="@Icons.Material.Filled.List" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Danh sách Giảng viên
+                </MudNavLink>
+                <MudNavLink Href="/lecturers/add" Icon="@Icons.Material.Filled.PersonAdd" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Thêm Giảng viên
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Quản lý Môn học -->
+            <MudNavGroup Text="Quản lý Môn học" Icon="@Icons.Material.Filled.Book" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/subjects" Icon="@Icons.Material.Filled.List" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Danh sách Môn học
+                </MudNavLink>
+                <MudNavLink Href="/subjects/add" Icon="@Icons.Material.Filled.Add" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Thêm Môn học
+                </MudNavLink>
+                <MudNavLink Href="/curriculums" Icon="@Icons.Material.Filled.School" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Chương trình đào tạo
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Quản lý Lớp học -->
+            <MudNavGroup Text="Quản lý Lớp học" Icon="@Icons.Material.Filled.Class" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/classes" Icon="@Icons.Material.Filled.List" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Danh sách Lớp học
+                </MudNavLink>
+                <MudNavLink Href="/classes/add" Icon="@Icons.Material.Filled.Add" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Mở Lớp học phần
+                </MudNavLink>
+                <MudNavLink Href="/schedules" Icon="@Icons.Material.Filled.CalendarMonth" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Lịch học
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Đăng ký học phần -->
+            <MudNavGroup Text="Đăng ký học phần" Icon="@Icons.Material.Filled.Assignment" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/enrollments" Icon="@Icons.Material.Filled.List" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Danh sách Đăng ký
+                </MudNavLink>
+                <MudNavLink Href="/enrollments/periods" Icon="@Icons.Material.Filled.Schedule" Class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg mx-2 my-1 text-sm transition-all duration-300 hover:translate-x-1">
+                    Kỳ đăng ký
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Báo cáo -->
+            <MudNavGroup Text="Báo cáo" Icon="@Icons.Material.Filled.Assessment" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/reports/students" Icon="@Icons.Material.Filled.People" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Báo cáo Sinh viên
+                </MudNavLink>
+                <MudNavLink Href="/reports/classes" Icon="@Icons.Material.Filled.Class" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Báo cáo Lớp học
+                </MudNavLink>
+                <MudNavLink Href="/reports/enrollments" Icon="@Icons.Material.Filled.Assignment" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Báo cáo Đăng ký
+                </MudNavLink>
+            </MudNavGroup>
+
+            <!-- Cài đặt -->
+            <MudNavGroup Text="Cài đặt" Icon="@Icons.Material.Filled.Settings" Expanded="true" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300">
+                <MudNavLink Href="/settings/departments" Icon="@Icons.Material.Filled.Business" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Khoa/Bộ môn
+                </MudNavLink>
+                <MudNavLink Href="/settings/rooms" Icon="@Icons.Material.Filled.Room" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Phòng học
+                </MudNavLink>
+                <MudNavLink Href="/settings/semesters" Icon="@Icons.Material.Filled.DateRange" Class="text-white/90 hover:text-white hover:bg-white/20 rounded-lg mx-1 my-1 transition-all duration-300 hover:translate-x-1">
+                    Học kỳ
+                </MudNavLink>
+            </MudNavGroup>
+        </MudNavMenu>
+
+        <!-- Footer -->
+        <MudDivider Class="my-4" />
+        <MudStack Spacing="2">
+            <MudButton Variant="Variant.Outlined" 
+                      Color="Color.Secondary" 
+                      Size="Size.Small"
+                      StartIcon="@Icons.Material.Filled.Logout"
+                      OnClick="HandleLogout"
+                      FullWidth="true">
+                Đăng xuất
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudDrawer>
+
+@code {
+    private bool isOpen = true;
+
+    private void HandleLogout()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}

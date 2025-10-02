@@ -4,43 +4,20 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.JSInterop
+@using MudBlazor
 @inject SignInManager<IdentityUser> SignInManager
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 
 <PageTitle>Trang chủ</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4 max-w-7xl mx-auto">
     <MudStack Spacing="4">
-        <!-- Header -->
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MudStack Row AlignItems="AlignItems.Center">
-                    <MudIcon Icon="@Icons.Material.Filled.School" Size="Size.Large" Color="Color.Primary" />
-                    <MudText Typo="Typo.h4" Color="Color.Primary" Class="ml-2">
-                        Hệ thống Đăng ký Học phần
-                    </MudText>
-                </MudStack>
-                
-                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                    <MudChip T="string" Icon="@Icons.Material.Filled.Person" Color="Color.Success" Size="Size.Small">
-                        Xin chào, Admin!
-                    </MudChip>
-                    <MudButton Variant="Variant.Outlined" 
-                              Color="Color.Secondary" 
-                              Size="Size.Small"
-                              StartIcon="@Icons.Material.Filled.Logout"
-                              OnClick="HandleLogout">
-                        Đăng xuất
-                    </MudButton>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
 
         <!-- Welcome Card -->
-        <MudPaper Class="pa-6" Elevation="1">
+        <MudPaper Class="p-6 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200" Elevation="1">
             <MudStack Spacing="3">
-                <MudText Typo="Typo.h5" Color="Color.Primary">
+                <MudText Typo="Typo.h5" Color="Color.Primary" Class="flex items-center">
                     <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" />
                     Bảng điều khiển
                 </MudText>
@@ -55,17 +32,17 @@
         <!-- Quick Stats -->
         <MudGrid>
             <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4" Elevation="2">
+                <MudPaper Class="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-blue-500 to-blue-600 text-white" Elevation="2">
                     <MudStack AlignItems="AlignItems.Center" Spacing="2">
                         <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Large" Color="Color.Primary" />
-                        <MudText Typo="Typo.h4" Color="Color.Primary">150</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Sinh viên</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-white font-bold">150</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-blue-100">Sinh viên</MudText>
                     </MudStack>
                 </MudPaper>
             </MudItem>
             
             <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4" Elevation="2">
+                <MudPaper Class="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" Elevation="2">
                     <MudStack AlignItems="AlignItems.Center" Spacing="2">
                         <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Large" Color="Color.Secondary" />
                         <MudText Typo="Typo.h4" Color="Color.Secondary">25</MudText>
@@ -75,7 +52,7 @@
             </MudItem>
             
             <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4" Elevation="2">
+                <MudPaper Class="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" Elevation="2">
                     <MudStack AlignItems="AlignItems.Center" Spacing="2">
                         <MudIcon Icon="@Icons.Material.Filled.Book" Size="Size.Large" Color="Color.Tertiary" />
                         <MudText Typo="Typo.h4" Color="Color.Tertiary">45</MudText>
@@ -85,7 +62,7 @@
             </MudItem>
             
             <MudItem xs="12" sm="6" md="3">
-                <MudPaper Class="pa-4" Elevation="2">
+                <MudPaper Class="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" Elevation="2">
                     <MudStack AlignItems="AlignItems.Center" Spacing="2">
                         <MudIcon Icon="@Icons.Material.Filled.School" Size="Size.Large" Color="Color.Info" />
                         <MudText Typo="Typo.h4" Color="Color.Info">12</MudText>
@@ -95,75 +72,24 @@
             </MudItem>
         </MudGrid>
 
-        <!-- Quick Actions -->
-        <MudPaper Class="pa-4" Elevation="1">
+        <!-- Welcome Message -->
+        <MudPaper Class="pa-6" Elevation="1">
             <MudStack Spacing="3">
-                <MudText Typo="Typo.h6" Color="Color.Primary">
-                    <MudIcon Icon="@Icons.Material.Filled.Speed" Class="mr-2" />
-                    Thao tác nhanh
+                <MudText Typo="Typo.h5" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.WavingHand" Class="mr-2" />
+                    Chào mừng bạn đến với Hệ thống Đăng ký Học phần
                 </MudText>
                 
-                <MudGrid>
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Primary" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.People"
-                                  Size="Size.Large">
-                            Quản lý Sinh viên
-                        </MudButton>
-                    </MudItem>
-                    
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Secondary" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.Person"
-                                  Size="Size.Large">
-                            Quản lý Giảng viên
-                        </MudButton>
-                    </MudItem>
-                    
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Tertiary" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.Book"
-                                  Size="Size.Large">
-                            Quản lý Môn học
-                        </MudButton>
-                    </MudItem>
-                    
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Info" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.Schedule"
-                                  Size="Size.Large">
-                            Lịch học
-                        </MudButton>
-                    </MudItem>
-                    
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Success" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.Assignment"
-                                  Size="Size.Large">
-                            Đăng ký học phần
-                        </MudButton>
-                    </MudItem>
-                    
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudButton Variant="Variant.Filled" 
-                                  Color="Color.Warning" 
-                                  FullWidth="true"
-                                  StartIcon="@Icons.Material.Filled.Analytics"
-                                  Size="Size.Large">
-                            Báo cáo
-                        </MudButton>
-                    </MudItem>
-                </MudGrid>
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    Sử dụng thanh bên trái để truy cập các chức năng quản lý. Hệ thống hỗ trợ đầy đủ các tính năng từ quản lý sinh viên, giảng viên, môn học đến đăng ký học phần và báo cáo.
+                </MudText>
+                
+                <MudAlert Severity="Severity.Info" Class="mt-4">
+                    <MudText Typo="Typo.body2">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
+                        <strong>Mẹo:</strong> Bạn có thể sử dụng các phím tắt để điều hướng nhanh hơn. Nhấn Ctrl + K để mở tìm kiếm toàn cục.
+                    </MudText>
+                </MudAlert>
             </MudStack>
         </MudPaper>
     </MudStack>
