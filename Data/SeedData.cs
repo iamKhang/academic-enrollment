@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,12 @@ using UniversityRegistration.Models.Enums;
 
 public static class SeedData
 {
-    public static async Task SeedAsync(UniversityRegistrationContext context)
+    public static async Task SeedAsync(UniversityRegistrationContext context, UserManager<IdentityUser> userManager)
     {
         await context.Database.EnsureCreatedAsync();
+
+        // ===== Create Admin User =====
+        await CreateAdminUserAsync(userManager);
 
         // Helper shortcuts for Set<T>()
         var Departments        = context.Set<Department>();
@@ -383,6 +387,50 @@ public static class SeedData
                 new Enrollment { Id="E003", StudentId="SV170003", CourseClassId="ENG1-S1-01", PracticeGroupId=null,         EnrollmentDate = new DateTime(2021,9,11) }
             });
             await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task CreateAdminUserAsync(UserManager<IdentityUser> userManager)
+    {
+        const string adminUsername = "admin";
+        const string adminPassword = "Admin123!";
+        const string adminEmail = "admin@university.edu";
+
+        var existingUser = await userManager.FindByNameAsync(adminUsername);
+        if (existingUser == null)
+        {
+            var adminUser = new IdentityUser
+            {
+                UserName = adminUsername,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                // Create Admin record
+                var admin = new Admin
+                {
+                    Id = adminUser.Id,
+                    Username = adminUsername,
+                    FullName = "System Administrator",
+                    Email = adminEmail,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                // Note: We'll add this to context in the main seed method
+                Console.WriteLine($"Admin user created: {adminUsername}");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Admin user already exists");
         }
     }
 }

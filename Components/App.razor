@@ -1,4 +1,7 @@
 @using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Navigation
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +23,9 @@
     <MudDialogProvider />
     <MudSnackbarProvider />
     <MudPopoverProvider />
-    <Routes />
+    <CascadingAuthenticationState>
+        <Routes @rendermode="new InteractiveServerRenderMode()" />
+    </CascadingAuthenticationState>
 
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
@@ -40,4 +45,9 @@
             Primary = "#1E40AF"
         }
     };
+
+    private void RedirectToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
 }

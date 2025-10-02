@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -6,7 +7,7 @@ using UniversityRegistration.Models;
 
 namespace UniversityRegistration.Data;
 
-public class UniversityRegistrationContext : DbContext
+public class UniversityRegistrationContext : IdentityDbContext
 {
     public UniversityRegistrationContext(DbContextOptions<UniversityRegistrationContext> options)
         : base(options)
@@ -46,6 +47,8 @@ public class UniversityRegistrationContext : DbContext
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
 
     public DbSet<SubjectCurriculumElectiveGroup> SubjectCurriculumElectiveGroups => Set<SubjectCurriculumElectiveGroup>();
+
+    public DbSet<Admin> Admins => Set<Admin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
