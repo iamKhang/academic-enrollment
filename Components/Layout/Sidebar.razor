@@ -1,17 +1,19 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Components.Routing
+@using AcademicEnrollment.Services
 @inject SignInManager<IdentityUser> SignInManager
 @inject NavigationManager Navigation
+@inject SidebarService SidebarService
 
 <div class="flex flex-col h-full">
     <!-- Header -->
-    <div class="flex items-center p-4 border-b border-gray-200">
+    <div class="flex items-center px-4 py-3 border-b border-gray-200 flex-shrink-0">
         <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
-        <h6 class="text-blue-600 font-semibold">Cổng đăng ký học phần</h6>
+        <span class="text-blue-600 font-semibold">Cổng đăng ký học phần</span>
     </div>
 
     <!-- Navigation Items -->
-    <nav class="flex-1 p-4 space-y-2">
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
         <!-- Dashboard -->
         <NavLink class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/" Match="NavLinkMatch.All">
             <i class="fas fa-tachometer-alt mr-3"></i>
@@ -93,7 +95,7 @@
         <div class="space-y-1">
             <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleClassesMenu">
                 <div class="flex items-center">
-                    <i class="fas fa-backpack mr-3"></i>
+                    <i class="fa-solid fa-swatchbook mr-3"></i>
                     Quản lý Lớp học
                 </div>
                 <i class="fas fa-chevron-down transform transition-transform @(classesMenuOpen ? "rotate-180" : "")"></i>
@@ -187,7 +189,7 @@
     </nav>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-gray-200">
+    <div class="p-4 border-t border-gray-200 flex-shrink-0">
         <button class="w-full flex items-center justify-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-800 transition-colors" @onclick="HandleLogout">
             <i class="fas fa-sign-out-alt mr-2"></i>
             Đăng xuất
@@ -243,4 +245,5 @@
     {
         Navigation.NavigateTo("/logout", forceLoad: true);
     }
+
 }

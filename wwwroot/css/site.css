@@ -86,6 +86,55 @@
     animation: slideIn 0.3s ease-out;
 }
 
+/* Burger Menu Animation */
+.burger-menu {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    cursor: pointer;
+}
+
+.burger-line {
+    display: block;
+    position: absolute;
+    height: 2px;
+    width: 100%;
+    background: #6b7280;
+    border-radius: 1px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: all 0.3s ease-in-out;
+}
+
+.burger-line:nth-child(1) {
+    top: 0px;
+}
+
+.burger-line:nth-child(2) {
+    top: 8px;
+}
+
+.burger-line:nth-child(3) {
+    top: 16px;
+}
+
+/* Burger Menu Open State */
+.burger-menu.open .burger-line:nth-child(1) {
+    top: 8px;
+    transform: rotate(135deg);
+}
+
+.burger-menu.open .burger-line:nth-child(2) {
+    opacity: 0;
+    left: -60px;
+}
+
+.burger-menu.open .burger-line:nth-child(3) {
+    top: 8px;
+    transform: rotate(-135deg);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 6px;

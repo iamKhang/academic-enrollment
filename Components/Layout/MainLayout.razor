@@ -1,11 +1,19 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @using Microsoft.AspNetCore.Components.Authorization
+@using AcademicEnrollment.Services
 @inject AuthenticationStateProvider AuthStateProvider
+@inject SidebarService SidebarService
 
 <div class="flex h-screen bg-gray-100">
     <!-- Sidebar -->
-    <div class="w-64 bg-white shadow-lg">
+    <div class="@(SidebarService.IsOpen ? "w-64" : "w-0") bg-white shadow-lg flex flex-col transition-all duration-300 overflow-hidden">
         <Sidebar />
+    </div>
+    
+    <!-- Toggle Button -->
+    <div class="flex items-center justify-center w-6 h-14 bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer" @onclick="SidebarService.Toggle">
+        <i class="fas @(SidebarService.IsOpen ? "fa-chevron-left" : "fa-chevron-right") text-white text-sm transition-all duration-300"></i>
     </div>
     
     <!-- Main content -->
@@ -21,3 +29,15 @@
     <a href="" class="underline">Reload</a>
     <a class="ml-4 cursor-pointer">🗙</a>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        SidebarService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        SidebarService.OnChange -= StateHasChanged;
+    }
+}

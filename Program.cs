@@ -54,6 +54,9 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add custom services
+builder.Services.AddScoped<AcademicEnrollment.Services.SidebarService>();
+
 var app = builder.Build();
 
 // Seed database
