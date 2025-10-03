@@ -1,0 +1,81 @@
+@page "/"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Trang chủ</PageTitle>
+
+<div class="space-y-6">
+    <!-- Welcome Card -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center mb-4">
+            <i class="fas fa-tachometer-alt text-3xl mr-4"></i>
+            <h2 class="text-2xl font-bold">Bảng điều khiển</h2>
+        </div>
+        <p class="text-blue-100">
+            Chào mừng bạn đến với hệ thống quản lý đăng ký học phần. 
+            Từ đây bạn có thể quản lý sinh viên, giảng viên, môn học và các hoạt động đăng ký.
+        </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-blue-600 text-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+            <i class="fas fa-users text-4xl mb-4"></i>
+            <h3 class="text-3xl font-bold mb-2">150</h3>
+            <p class="text-blue-100">Sinh viên</p>
+        </div>
+        
+        <div class="bg-green-600 text-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+            <i class="fas fa-chalkboard-teacher text-4xl mb-4"></i>
+            <h3 class="text-3xl font-bold mb-2">25</h3>
+            <p class="text-green-100">Giảng viên</p>
+        </div>
+        
+        <div class="bg-yellow-600 text-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+            <i class="fas fa-book text-4xl mb-4"></i>
+            <h3 class="text-3xl font-bold mb-2">45</h3>
+            <p class="text-yellow-100">Môn học</p>
+        </div>
+        
+        <div class="bg-cyan-600 text-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+            <i class="fas fa-school text-4xl mb-4"></i>
+            <h3 class="text-3xl font-bold mb-2">12</h3>
+            <p class="text-cyan-100">Lớp học</p>
+        </div>
+    </div>
+
+    <!-- Welcome Message -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center mb-4">
+            <i class="fas fa-hand-wave text-blue-600 text-2xl mr-3"></i>
+            <h3 class="text-xl font-semibold text-blue-600">Chào mừng bạn đến với Hệ thống Đăng ký Học phần</h3>
+        </div>
+        
+        <p class="text-gray-600 mb-6">
+            Sử dụng thanh bên trái để truy cập các chức năng quản lý. Hệ thống hỗ trợ đầy đủ các tính năng từ quản lý sinh viên, giảng viên, môn học đến đăng ký học phần và báo cáo.
+        </p>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                <div>
+                    <strong class="text-blue-800">Mẹo:</strong> 
+                    <span class="text-blue-700">Bạn có thể sử dụng các phím tắt để điều hướng nhanh hơn. Nhấn Ctrl + K để mở tìm kiếm toàn cục.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void HandleLogout()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}

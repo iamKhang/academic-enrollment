@@ -1,0 +1,183 @@
+/* Custom CSS for Academic Enrollment System with Tailwind CSS */
+
+/* Import Font Awesome */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+/* Custom utilities and overrides for Tailwind */
+@layer utilities {
+    /* Custom gradient backgrounds */
+    .bg-gradient-to-r {
+        background: linear-gradient(to right, var(--tw-gradient-stops));
+    }
+    
+    .bg-gradient-to-br {
+        background: linear-gradient(to bottom right, var(--tw-gradient-stops));
+    }
+}
+
+/* Custom component styles */
+@layer components {
+    /* Navigation active states */
+    .nav-link.active {
+        @apply bg-blue-600 text-white;
+    }
+    
+    /* Custom card hover effects */
+    .card-hover {
+        @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    }
+    
+    /* Custom button styles */
+    .btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    }
+    
+    .btn-secondary {
+        @apply bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    }
+    
+    /* Custom form styles */
+    .form-input {
+        @apply block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    }
+    
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-2;
+    }
+    
+    /* Custom alert styles */
+    .alert {
+        @apply p-4 rounded-lg border;
+    }
+    
+    .alert-info {
+        @apply bg-blue-50 border-blue-200 text-blue-800;
+    }
+    
+    .alert-success {
+        @apply bg-green-50 border-green-200 text-green-800;
+    }
+    
+    .alert-warning {
+        @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+    }
+    
+    .alert-error {
+        @apply bg-red-50 border-red-200 text-red-800;
+    }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
+
+/* Focus styles for accessibility */
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Custom spacing utilities */
+.space-y-8 > * + * {
+    margin-top: 2rem;
+}
+
+.space-y-6 > * + * {
+    margin-top: 1.5rem;
+}
+
+.space-y-4 > * + * {
+    margin-top: 1rem;
+}
+
+.space-y-2 > * + * {
+    margin-top: 0.5rem;
+}
+
+/* Custom grid utilities */
+.grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Custom text utilities */
+.text-shadow {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Custom border utilities */
+.border-gradient {
+    border-image: linear-gradient(45deg, #3b82f6, #1d4ed8) 1;
+}
+
+/* Custom shadow utilities */
+.shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading states */
+.loading {
+    @apply opacity-50 pointer-events-none;
+}
+
+/* Error states */
+.error {
+    @apply border-red-500 bg-red-50;
+}
+
+/* Success states */
+.success {
+    @apply border-green-500 bg-green-50;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+    .mobile-hidden {
+        display: none;
+    }
+    
+    .mobile-full {
+        width: 100%;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-break {
+        page-break-after: always;
+    }
+}

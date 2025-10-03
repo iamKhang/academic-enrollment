@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Antiforgery;
 using UniversityRegistration.Data;
 using UniversityRegistration.Models;
+using AcademicEnrollment.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,10 @@ builder.Services.AddAntiforgery(options =>
 // Add API services
 builder.Services.AddControllers();
 
+// Add Blazor services
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 var app = builder.Build();
 
 // Seed database
@@ -81,8 +86,11 @@ app.UseAuthorization();
 // API endpoints
 app.MapControllers();
 
+// Blazor endpoints
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
 // Basic API endpoints for testing
-app.MapGet("/", () => "Academic Enrollment API - Database models and context ready");
 app.MapGet("/api/health", () => "API is running");
 
 // Minimal API endpoint for login (handles cookie issuing on HTTP response)

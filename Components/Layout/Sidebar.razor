@@ -1,0 +1,246 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Routing
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager Navigation
+
+<div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center p-4 border-b border-gray-200">
+        <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
+        <h6 class="text-blue-600 font-semibold">Cổng đăng ký học phần</h6>
+    </div>
+
+    <!-- Navigation Items -->
+    <nav class="flex-1 p-4 space-y-2">
+        <!-- Dashboard -->
+        <NavLink class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/" Match="NavLinkMatch.All">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Trang chủ
+        </NavLink>
+
+        <!-- Quản lý Sinh viên -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleStudentsMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-users mr-3"></i>
+                    Quản lý Sinh viên
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(studentsMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(studentsMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/students">
+                    <i class="fas fa-list mr-3"></i>
+                    Danh sách Sinh viên
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/students/add">
+                    <i class="fas fa-user-plus mr-3"></i>
+                    Thêm Sinh viên
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/students/import">
+                    <i class="fas fa-upload mr-3"></i>
+                    Import Excel
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Quản lý Giảng viên -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleLecturersMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-chalkboard-teacher mr-3"></i>
+                    Quản lý Giảng viên
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(lecturersMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(lecturersMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/lecturers">
+                    <i class="fas fa-list mr-3"></i>
+                    Danh sách Giảng viên
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/lecturers/add">
+                    <i class="fas fa-user-plus mr-3"></i>
+                    Thêm Giảng viên
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Quản lý Môn học -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleSubjectsMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-book mr-3"></i>
+                    Quản lý Môn học
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(subjectsMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(subjectsMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/subjects">
+                    <i class="fas fa-list mr-3"></i>
+                    Danh sách Môn học
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/subjects/add">
+                    <i class="fas fa-plus mr-3"></i>
+                    Thêm Môn học
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/curriculums">
+                    <i class="fas fa-school mr-3"></i>
+                    Chương trình đào tạo
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Quản lý Lớp học -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleClassesMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-backpack mr-3"></i>
+                    Quản lý Lớp học
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(classesMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(classesMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/classes">
+                    <i class="fas fa-list mr-3"></i>
+                    Danh sách Lớp học
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/classes/add">
+                    <i class="fas fa-plus mr-3"></i>
+                    Mở Lớp học phần
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/schedules">
+                    <i class="fas fa-calendar-alt mr-3"></i>
+                    Lịch học
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Đăng ký học phần -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleEnrollmentsMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-clipboard-list mr-3"></i>
+                    Đăng ký học phần
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(enrollmentsMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(enrollmentsMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/enrollments">
+                    <i class="fas fa-list mr-3"></i>
+                    Danh sách Đăng ký
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/enrollments/periods">
+                    <i class="fas fa-clock mr-3"></i>
+                    Kỳ đăng ký
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Báo cáo -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleReportsMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Báo cáo
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(reportsMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(reportsMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/reports/students">
+                    <i class="fas fa-users mr-3"></i>
+                    Báo cáo Sinh viên
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/reports/classes">
+                    <i class="fas fa-chalkboard mr-3"></i>
+                    Báo cáo Lớp học
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/reports/enrollments">
+                    <i class="fas fa-clipboard-list mr-3"></i>
+                    Báo cáo Đăng ký
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Cài đặt -->
+        <div class="space-y-1">
+            <button class="flex items-center justify-between w-full px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" @onclick="ToggleSettingsMenu">
+                <div class="flex items-center">
+                    <i class="fas fa-cog mr-3"></i>
+                    Cài đặt
+                </div>
+                <i class="fas fa-chevron-down transform transition-transform @(settingsMenuOpen ? "rotate-180" : "")"></i>
+            </button>
+            <div class="@(settingsMenuOpen ? "block" : "hidden") ml-4 space-y-1">
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/settings/departments">
+                    <i class="fas fa-building mr-3"></i>
+                    Khoa/Bộ môn
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/settings/rooms">
+                    <i class="fas fa-door-open mr-3"></i>
+                    Phòng học
+                </NavLink>
+                <NavLink class="flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" href="/settings/semesters">
+                    <i class="fas fa-calendar mr-3"></i>
+                    Học kỳ
+                </NavLink>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-gray-200">
+        <button class="w-full flex items-center justify-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-800 transition-colors" @onclick="HandleLogout">
+            <i class="fas fa-sign-out-alt mr-2"></i>
+            Đăng xuất
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool studentsMenuOpen = true;
+    private bool lecturersMenuOpen = true;
+    private bool subjectsMenuOpen = true;
+    private bool classesMenuOpen = true;
+    private bool enrollmentsMenuOpen = true;
+    private bool reportsMenuOpen = true;
+    private bool settingsMenuOpen = true;
+
+    private void ToggleStudentsMenu()
+    {
+        studentsMenuOpen = !studentsMenuOpen;
+    }
+
+    private void ToggleLecturersMenu()
+    {
+        lecturersMenuOpen = !lecturersMenuOpen;
+    }
+
+    private void ToggleSubjectsMenu()
+    {
+        subjectsMenuOpen = !subjectsMenuOpen;
+    }
+
+    private void ToggleClassesMenu()
+    {
+        classesMenuOpen = !classesMenuOpen;
+    }
+
+    private void ToggleEnrollmentsMenu()
+    {
+        enrollmentsMenuOpen = !enrollmentsMenuOpen;
+    }
+
+    private void ToggleReportsMenu()
+    {
+        reportsMenuOpen = !reportsMenuOpen;
+    }
+
+    private void ToggleSettingsMenu()
+    {
+        settingsMenuOpen = !settingsMenuOpen;
+    }
+
+    private void HandleLogout()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}

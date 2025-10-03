@@ -1,0 +1,133 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.WebUtilities
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager Navigation
+
+<PageTitle>Đăng nhập</PageTitle>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="bg-white shadow-lg rounded-lg p-8">
+            <div class="text-center mb-8">
+                <i class="fas fa-graduation-cap text-blue-600 text-6xl mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-900">Hệ thống Đăng ký Học phần</h2>
+                <p class="text-gray-600 mt-2">Đăng nhập để tiếp tục</p>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+                    @errorMessage
+                </div>
+            }
+            
+            <form method="post" action="/auth/login" class="space-y-6">
+                <AntiforgeryToken />
+                @if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                }
+
+                <!-- Hidden fields used for actual POST values -->
+                <input type="hidden" name="username" value="@loginModel.Username" />
+                <input type="hidden" name="password" value="@loginModel.Password" />
+                <input type="hidden" name="rememberMe" value="@(loginModel.RememberMe ? "true" : "false")" />
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" id="username" @bind="loginModel.Username" 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                               placeholder="Nhập tên đăng nhập" required />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="password" @bind="loginModel.Password" 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                               placeholder="Nhập mật khẩu" required />
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="rememberMe" @bind="loginModel.RememberMe" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    <label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Đăng nhập
+                </button>
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-center">
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span>Thông tin đăng nhập: <strong>admin</strong> / <strong>Admin123!</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private LoginModel loginModel = new();
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+    private string? returnUrl;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get ReturnUrl from query string
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("ReturnUrl", out var returnUrlValues))
+        {
+            returnUrl = returnUrlValues.FirstOrDefault();
+        }
+
+        // Nếu đã đăng nhập thì chuyển hướng luôn
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            Navigation.NavigateTo(!string.IsNullOrEmpty(returnUrl) ? returnUrl! : "/", forceLoad: true);
+            return;
+        }
+    }
+
+    // Đăng nhập dùng form POST tới /auth/login (Minimal API) để set cookie và redirect
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
+        public string Username { get; set; } = "admin";
+
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+        public string Password { get; set; } = "Admin123!";
+        
+        public bool RememberMe { get; set; } = true;
+    }
+}
