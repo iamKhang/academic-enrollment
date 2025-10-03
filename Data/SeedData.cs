@@ -12,7 +12,7 @@ public static class SeedData
 {
     public static async Task SeedAsync(UniversityRegistrationContext context, UserManager<IdentityUser> userManager)
     {
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
 
         // ===== Create Admin User =====
         await CreateAdminUserAsync(userManager);
@@ -30,6 +30,9 @@ public static class SeedData
         var SubjectCurriculums = context.Set<SubjectCurriculum>();
         var Semesters          = context.Set<Semester>();
         var Rooms              = context.Set<Room>();
+        var Campuses           = context.Set<Campus>();
+        var Buildings          = context.Set<Building>();
+        var Floors             = context.Set<Floor>();
         var CourseClasses      = context.Set<CourseClass>();
         var PracticeGroups     = context.Set<PracticeGroup>();
         var Schedules          = context.Set<Schedule>();
@@ -210,16 +213,115 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
+        // ===== Campuses / Buildings / Floors =====
+        if (!Campuses.Any())
+        {
+            Campuses.AddRange(new[]
+            {
+                new Campus { Id = "CS1", Name = "Cơ sở 1", Address = "123 Đường 1, TP A" },
+                new Campus { Id = "CS2", Name = "Cơ sở 2", Address = "456 Đường 2, TP B" }
+            });
+            await context.SaveChangesAsync();
+        }
+
+        if (!Buildings.Any())
+        {
+            Buildings.AddRange(new[]
+            {
+                new Building { Id = "A", Name = "Tòa A", CampusId = "CS1" },
+                new Building { Id = "B", Name = "Tòa B", CampusId = "CS1" },
+                new Building { Id = "C", Name = "Tòa C", CampusId = "CS1" },
+                new Building { Id = "A2", Name = "Tòa A - CS2", CampusId = "CS2" },
+                new Building { Id = "B2", Name = "Tòa B - CS2", CampusId = "CS2" }
+            });
+            await context.SaveChangesAsync();
+        }
+
+        if (!Floors.Any())
+        {
+            var floorAdds = new List<Floor>();
+            var buildingIds = Buildings.Select(b => b.Id).ToList();
+            foreach (var bId in buildingIds)
+            {
+                for (int f = 1; f <= 4; f++)
+                {
+                    floorAdds.Add(new Floor { Id = $"{bId}-{f}", BuildingId = bId, Number = f });
+                }
+            }
+            Floors.AddRange(floorAdds);
+            await context.SaveChangesAsync();
+        }
+
         // ===== Rooms =====
         if (!Rooms.Any())
         {
-            Rooms.AddRange(new[]
+            var roomsToAdd = new List<Room>();
+
+            // Preserve existing ids referenced by schedules
+            roomsToAdd.AddRange(new[]
             {
-                new Room { Id = "A101", Name = "A101", Capacity = 60, RoomType = RoomType.Theory,      Location = "Tầng 1, Tòa A" },
-                new Room { Id = "A102", Name = "A102", Capacity = 40, RoomType = RoomType.ComputerLab, Location = "Tầng 1, Tòa A" },
-                new Room { Id = "B201", Name = "B201", Capacity = 50, RoomType = RoomType.Theory,      Location = "Tầng 2, Tòa B" },
-                new Room { Id = "B202", Name = "B202", Capacity = 35, RoomType = RoomType.ComputerLab, Location = "Tầng 2, Tòa B" }
+                new Room { Id = "A101", Name = "A101", Capacity = 60, RoomType = RoomType.Theory,      Location = "Tầng 1, Tòa A", Campus = "Cơ sở 1", Building = "A", Floor = 1, CampusId = "CS1", BuildingId = "A", FloorId = "A-1" },
+                new Room { Id = "A102", Name = "A102", Capacity = 40, RoomType = RoomType.ComputerLab, Location = "Tầng 1, Tòa A", Campus = "Cơ sở 1", Building = "A", Floor = 1, CampusId = "CS1", BuildingId = "A", FloorId = "A-1" },
+                new Room { Id = "B201", Name = "B201", Capacity = 50, RoomType = RoomType.Theory,      Location = "Tầng 2, Tòa B", Campus = "Cơ sở 1", Building = "B", Floor = 2, CampusId = "CS1", BuildingId = "B", FloorId = "B-2" },
+                new Room { Id = "B202", Name = "B202", Capacity = 35, RoomType = RoomType.ComputerLab, Location = "Tầng 2, Tòa B", Campus = "Cơ sở 1", Building = "B", Floor = 2, CampusId = "CS1", BuildingId = "B", FloorId = "B-2" }
             });
+
+            // Generate hierarchical rooms: campus -> building -> floor -> room
+            var campuses = new[] { (code: "CS1", name: "Cơ sở 1"), (code: "CS2", name: "Cơ sở 2") };
+            var buildingsByCampus = new Dictionary<string, string[]>
+            {
+                ["CS1"] = new[] { "A", "B", "C" },
+                ["CS2"] = new[] { "A2", "B2" }
+            };
+            var floorsPerBuilding = 4;    // 1..4
+            var roomsPerFloor = 5;        // 101..105, 201..205, ...
+
+            foreach (var c in campuses)
+            {
+                foreach (var building in buildingsByCampus[c.code])
+                {
+                    for (int floor = 1; floor <= floorsPerBuilding; floor++)
+                    {
+                        for (int roomOrdinal = 1; roomOrdinal <= roomsPerFloor; roomOrdinal++)
+                        {
+                            // Base room number per floor: 100*floor + ordinal (e.g., 101..105)
+                            var numeric = floor * 100 + roomOrdinal; // 101..105, 201..205, ...
+
+                            // Compact, unique Id (max length 10): e.g., "1A101"
+                            var id = $"{c.code.Replace("CS", string.Empty)}{building}{numeric}";
+
+                            // Avoid duplicating the preserved ids (A101, A102, B201, B202)
+                            if (id.Length <= 5 && (id == "A101" || id == "A102" || id == "B201" || id == "B202"))
+                            {
+                                continue;
+                            }
+
+                            // Choose type by ordinal to diversify
+                            var isLab = roomOrdinal >= 4; // 1-3: theory, 4-5: lab
+                            var roomType = isLab ? RoomType.ComputerLab : RoomType.Theory;
+
+                            var capacity = isLab ? 35 : 60;
+
+                            roomsToAdd.Add(new Room
+                            {
+                                Id = id,
+                                Name = $"{building}{numeric}",
+                                Capacity = capacity,
+                                RoomType = roomType,
+                                Campus = c.name,
+                                Building = building,
+                                Floor = floor,
+                                Location = $"{c.name} - Tầng {floor}, Tòa {building}",
+                                CampusId = c.code,
+                                BuildingId = building,
+                                FloorId = $"{building}-{floor}"
+                            });
+                        }
+                    }
+                }
+            }
+
+            Rooms.AddRange(roomsToAdd);
             await context.SaveChangesAsync();
         }
 

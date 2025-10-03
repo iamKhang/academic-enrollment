@@ -50,6 +50,12 @@ public class UniversityRegistrationContext : IdentityDbContext
 
     public DbSet<Admin> Admins => Set<Admin>();
 
+    public DbSet<Campus> Campuses => Set<Campus>();
+
+    public DbSet<Building> Buildings => Set<Building>();
+
+    public DbSet<Floor> Floors => Set<Floor>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -250,6 +256,40 @@ public class UniversityRegistrationContext : IdentityDbContext
             .WithOne(s => s.Room)
             .HasForeignKey(s => s.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Hierarchy: Campus -> Building -> Floor -> Room
+        modelBuilder.Entity<Campus>()
+            .HasMany(c => c.Buildings)
+            .WithOne(b => b.Campus)
+            .HasForeignKey(b => b.CampusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Building>()
+            .HasMany(b => b.Floors)
+            .WithOne(f => f.Building)
+            .HasForeignKey(f => f.BuildingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Floor>()
+            .HasMany(f => f.Rooms)
+            .WithOne(r => r.FloorRef)
+            .HasForeignKey(r => r.FloorId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // (removed duplicate Building->Floors mapping)
+
+        // Optional direct FKs on Room
+        modelBuilder.Entity<Room>()
+            .HasOne(r => r.CampusRef)
+            .WithMany()
+            .HasForeignKey(r => r.CampusId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Room>()
+            .HasOne(r => r.BuildingRef)
+            .WithMany()
+            .HasForeignKey(r => r.BuildingId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Room>()
             .Property(r => r.RoomType)

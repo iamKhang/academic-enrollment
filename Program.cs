@@ -1,8 +1,6 @@
-using AcademicEnrollment.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Antiforgery;
@@ -48,11 +46,8 @@ builder.Services.AddAntiforgery(options =>
     options.SuppressXFrameOptionsHeader = false;
 });
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddMudServices();
+// Add API services
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -64,16 +59,18 @@ using (var scope = app.Services.CreateScope())
     await SeedData.SeedAsync(context, userManager);
 }
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
@@ -81,8 +78,12 @@ app.UseAntiforgery();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+// API endpoints
+app.MapControllers();
+
+// Basic API endpoints for testing
+app.MapGet("/", () => "Academic Enrollment API - Database models and context ready");
+app.MapGet("/api/health", () => "API is running");
 
 // Minimal API endpoint for login (handles cookie issuing on HTTP response)
 app.MapPost("/auth/login", async (
