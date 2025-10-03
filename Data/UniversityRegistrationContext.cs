@@ -20,9 +20,11 @@ public class UniversityRegistrationContext : IdentityDbContext
 
     public DbSet<Curriculum> Curriculums => Set<Curriculum>();
 
-    public DbSet<SubjectCurriculum> SubjectCurriculums => Set<SubjectCurriculum>();
+    public DbSet<CurriculumTerm> CurriculumTerms => Set<CurriculumTerm>();
+    public DbSet<CurriculumTermSubject> CurriculumTermSubjects => Set<CurriculumTermSubject>();
+    public DbSet<CurriculumElectiveGroup> CurriculumElectiveGroups => Set<CurriculumElectiveGroup>();
+    public DbSet<CurriculumElectiveGroupSubject> CurriculumElectiveGroupSubjects => Set<CurriculumElectiveGroupSubject>();
 
-    public DbSet<ElectiveGroup> ElectiveGroups => Set<ElectiveGroup>();
 
     public DbSet<Class> Classes => Set<Class>();
 
@@ -45,8 +47,6 @@ public class UniversityRegistrationContext : IdentityDbContext
     public DbSet<Schedule> Schedules => Set<Schedule>();
 
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
-
-    public DbSet<SubjectCurriculumElectiveGroup> SubjectCurriculumElectiveGroups => Set<SubjectCurriculumElectiveGroup>();
 
     public DbSet<Admin> Admins => Set<Admin>();
 
@@ -92,86 +92,6 @@ public class UniversityRegistrationContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(pc => pc.CurriculumId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Curriculum>()
-            .HasMany(c => c.SubjectCurriculums)
-            .WithOne(sc => sc.Curriculum)
-            .HasForeignKey(sc => sc.CurriculumId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Curriculum>()
-            .HasMany(c => c.ElectiveGroups)
-            .WithOne(eg => eg.Curriculum)
-            .HasForeignKey(eg => eg.CurriculumId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<SubjectCurriculum>()
-            .HasOne(sc => sc.Subject)
-            .WithMany()
-            .HasForeignKey(sc => sc.SubjectId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Gỡ mapping 1-n cũ (đã bỏ ElectiveGroupId trong SubjectCurriculum)
-
-        // 1) ElectiveGroup: unique trong 1 curriculum & 1 học kỳ
-        modelBuilder.Entity<ElectiveGroup>()
-            .HasIndex(x => new { x.CurriculumId, x.Semester, x.Name })
-            .IsUnique();
-
-        modelBuilder.Entity<ElectiveGroup>()
-            .HasOne(x => x.Curriculum)
-            .WithMany(c => c.ElectiveGroups)
-            .HasForeignKey(x => x.CurriculumId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // 3) Mapping m-n qua bảng nối
-        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
-            .ToTable("subject_curriculum_elective_groups")
-            .HasKey(x => new { x.SubjectCurriculumId, x.ElectiveGroupId });
-
-        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
-            .HasOne(x => x.SubjectCurriculum)
-            .WithMany(sc => sc.ElectiveGroups)
-            .HasForeignKey(x => x.SubjectCurriculumId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
-            .HasOne(x => x.ElectiveGroup)
-            .WithMany(eg => eg.SubjectCurricula)
-            .HasForeignKey(x => x.ElectiveGroupId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        // 4) (Optional) Ràng buộc cùng học kỳ & cùng curriculum ở mức DB
-        modelBuilder.Entity<SubjectCurriculumElectiveGroup>()
-            .ToTable(tb => tb.HasCheckConstraint(
-                "ck_sc_eg_same_ids",
-                // check mềm: chỉ kiểm non-empty; phần "cùng semester/curriculum" validate trong code
-                "subject_curriculum_id <> '' AND elective_group_id <> ''"
-            ));
-
-        // 5) Quy đổi nhóm ở Enrollment
-        modelBuilder.Entity<Enrollment>()
-            .HasOne(e => e.AttributedElectiveGroup)
-            .WithMany()
-            .HasForeignKey(e => e.AttributedElectiveGroupId)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        // Configure prerequisite/corequisite relationships
-        modelBuilder.Entity<SubjectCurriculum>()
-            .HasMany(sc => sc.Prerequisites)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("prerequisites"));
-
-        modelBuilder.Entity<SubjectCurriculum>()
-            .HasMany(sc => sc.Corequisites)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("corequisites"));
-
-        modelBuilder.Entity<SubjectCurriculum>()
-            .HasMany(sc => sc.ConcurrentCourses)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("concurrent_courses"));
-
 
         modelBuilder.Entity<Class>()
             .HasMany(c => c.Students)
@@ -301,9 +221,54 @@ public class UniversityRegistrationContext : IdentityDbContext
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        // Curriculum -> Terms
+        modelBuilder.Entity<Curriculum>()
+            .HasMany(c => c.Terms)
+            .WithOne(t => t.Curriculum)
+            .HasForeignKey(t => t.CurriculumId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CurriculumTerm -> RequiredSubjects
+        modelBuilder.Entity<CurriculumTerm>()
+            .HasMany(t => t.RequiredSubjects)
+            .WithOne(rs => rs.CurriculumTerm)
+            .HasForeignKey(rs => rs.CurriculumTermId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CurriculumTerm -> ElectiveGroups
+        modelBuilder.Entity<CurriculumTerm>()
+            .HasMany(t => t.ElectiveGroups)
+            .WithOne(eg => eg.CurriculumTerm)
+            .HasForeignKey(eg => eg.CurriculumTermId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CurriculumTermSubject -> Subject
+        modelBuilder.Entity<CurriculumTermSubject>()
+            .HasOne(ts => ts.Subject)
+            .WithMany()
+            .HasForeignKey(ts => ts.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CurriculumElectiveGroup -> Subjects
+        modelBuilder.Entity<CurriculumElectiveGroup>()
+            .HasMany(eg => eg.Subjects)
+            .WithOne(s => s.ElectiveGroup)
+            .HasForeignKey(s => s.ElectiveGroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CurriculumElectiveGroupSubject composite key
+        modelBuilder.Entity<CurriculumElectiveGroupSubject>()
+            .HasKey(egs => new { egs.ElectiveGroupId, egs.SubjectId });
+
+        modelBuilder.Entity<CurriculumElectiveGroupSubject>()
+            .HasOne(egs => egs.Subject)
+            .WithMany()
+            .HasForeignKey(egs => egs.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
         // Explicit table names using simple s/es pluralization
         modelBuilder.Entity<Curriculum>().ToTable("curriculums");
-        modelBuilder.Entity<SubjectCurriculum>().ToTable("subject_curriculums");
 
         ApplySnakeCaseNaming(modelBuilder);
     }
